@@ -2,6 +2,8 @@
 # ---------- Chi-Squared Test of Independence (Deep Dive) ----------------------
 # ------------------------------------------------------------------------------
 
+# This function allows users to conduct a deep dive across multiple levels of a single categorical variable.
+
 chisq.test.dd <- function(data, group="group", x="x", y="y") {
   
   data <- data
