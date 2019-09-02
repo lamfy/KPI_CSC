@@ -2,6 +2,8 @@
 # ---------- Mann-Whitney-Wilcoxon Signed Rank Test (Deep Dive) ----------------
 # ------------------------------------------------------------------------------
 
+# This function allows users to conduct a deep dive across multiple levels of a single categorical variable.
+
 wilcox.test.dd <- function(data, group="group", x="x", y="y") {
   
   data <- data
