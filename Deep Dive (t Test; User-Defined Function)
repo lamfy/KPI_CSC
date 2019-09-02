@@ -1,0 +1,76 @@
+# ------------------------------------------------------------------------------
+# ---------- T-Test (Deep Dive) ------------------------------------------------
+# ------------------------------------------------------------------------------
+
+# This function allows a user to conduct multiple t tests across different levels of a categorical variable.
+
+t.test.dd <- function(data, group="group", x="x", y="y") {
+  
+  data <- data
+  data <- data[,c(group, x, y)]
+  colnames(data) <- c("group", "x", "y")
+  
+  group <- list()
+  meant <- list()
+  mean1 <- list()
+  mean2 <- list()
+  sdt <- list()
+  sd1 <- list()
+  sd2 <- list()
+  t <- list()
+  df <- list()
+  p <- list()
+  
+  for (i in 1:length(names(table(data$group)))) {
+    
+    data.sub <- data[data$group==names(table(data$group))[i],]
+    group[i] <- names(table(data.sub$group))
+    levels <- length(names(table(data.sub[!is.na(data.sub$y),]$x)))
+    
+    meant[i] <- round(mean(data.sub[!is.na(data.sub$x),]$y, na.rm=TRUE), 2)
+    mean1[i] <- round(mean(data.sub[data.sub$x==names(table(data$x))[1],]$y, na.rm=TRUE), 2)
+    mean2[i] <- round(mean(data.sub[data.sub$x==names(table(data$x))[2],]$y, na.rm=TRUE), 2)
+    sdt[i] <- round(sd(data.sub[!is.na(data.sub$x),]$y, na.rm=TRUE), 2)
+    sd1[i] <- round(sd(data.sub[data.sub$x==names(table(data$x))[1],]$y, na.rm=TRUE), 2)
+    sd2[i] <- round(sd(data.sub[data.sub$x==names(table(data$x))[2],]$y, na.rm=TRUE), 2)
+    
+    if (levels==2) {
+      
+      vtest <- var.test(y~x, data.sub)
+      
+      if (vtest$p.value < 0.05) {
+        
+        ttest <- t.test(y~x, data.sub, var.equal=FALSE)
+        t[i] <- round(ttest$statistic, 2)
+        df[i] <- round(ttest$parameter, 0)
+        p[i] <- round(ttest$p.value, 3)
+        
+      } else {
+        
+        ttest <- t.test(y~x, data.sub, var.equal=TRUE)
+        t[i] <- round(ttest$statistic, 2)
+        df[i] <- round(ttest$parameter, 0)
+        p[i] <- round(ttest$p.value, 3)
+        
+      }
+      
+    } else {
+      
+      t[i] <- "NA"
+      df[i] <- "NA"
+      p[i] <- "NA"
+      
+    }
+    
+  }
+  
+  output <- data.frame(Group=unlist(group),
+                       Total=paste0(unlist(meant), " (", unlist(sdt), ")"),
+                       Level1=paste0(unlist(mean1), " (", unlist(sd1), ")"),
+                       Level2=paste0(unlist(mean2), " (", unlist(sd2), ")"),
+                       t=paste0(unlist(t), " (", unlist(df), ")"),
+                       p=unlist(p))
+  
+  print(output)
+  
+}
