@@ -2,7 +2,7 @@
 # ---------- T-Test (Deep Dive) ------------------------------------------------
 # ------------------------------------------------------------------------------
 
-# This function allows a user to conduct multiple t tests across different levels of a categorical variable.
+# This function allows users to conduct a deep dive across multiple levels of a single categorical variable.
 
 t.test.dd <- function(data, group="group", x="x", y="y") {
   
