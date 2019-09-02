@@ -1,0 +1,62 @@
+# ------------------------------------------------------------------------------
+# ---------- Chi-Squared Test of Independence (Deep Dive) ----------------------
+# ------------------------------------------------------------------------------
+
+chisq.test.dd <- function(data, group="group", x="x", y="y") {
+  
+  data <- data
+  data <- data[,c(group, x, y)]
+  colnames(data) <- c("group", "x", "y")
+  
+  group <- list()
+  count1 <- list()
+  count2 <- list()
+  prop1 <- list()
+  prop2 <- list()
+  X <- list()
+  df <- list()
+  p <- list()
+  
+  for (i in 1:length(names(table(data$group)))) {
+    
+    data.sub <- data[data$group==names(table(data$group))[i],]
+    group[i] <- names(table(data.sub$group))
+    levels <- length(names(table(data.sub[!is.na(data.sub$y),]$x)))
+    
+    if (levels==2) {
+      
+      count1[i] <- table(data.sub$x, data.sub$y)[1,2]
+      count2[i] <- table(data.sub$x, data.sub$y)[2,2]
+      prop1[i] <- round(prop.table(table(data.sub$x, data.sub$y), 1)[1,2]*100, 0)
+      prop2[i] <- round(prop.table(table(data.sub$x, data.sub$y), 1)[2,2]*100, 0)
+      
+      chisq <- chisq.test(table(data.sub$x, data.sub$y))
+      X[i] <- round(chisq$statistic, 2)
+      df[i] <- chisq$parameter
+      p[i] <- round(chisq$p.value, 3)
+      
+    } else {
+      
+      count1[i] <- "NA"
+      count2[i] <- "NA"
+      prop1[i] <- "NA"
+      prop2[i] <- "NA"
+      
+      X[i] <- "NA"
+      df[i] <- "NA"
+      p[i] <- "NA"
+      
+    }
+    
+  }
+  
+  output <- data.frame(Group=unlist(group),
+                       Level1=paste0(unlist(count1), " (", unlist(prop1), ")"),
+                       Level2=paste0(unlist(count2), " (", unlist(prop2), ")"),
+                       X2=unlist(X),
+                       df=unlist(df),
+                       p=unlist(p))
+  
+  print(output)
+  
+}
