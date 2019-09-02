@@ -1,0 +1,57 @@
+# ------------------------------------------------------------------------------
+# ---------- Mann-Whitney-Wilcoxon Signed Rank Test (Deep Dive) ----------------
+# ------------------------------------------------------------------------------
+
+wilcox.test.dd <- function(data, group="group", x="x", y="y") {
+  
+  data <- data
+  data <- data[,c(group, x, y)]
+  colnames(data) <- c("group", "x", "y")
+  
+  group <- list()
+  mediant <- list()
+  median1 <- list()
+  median2 <- list()
+  iqrt <- list()
+  iqr1 <- list()
+  iqr2 <- list()
+  W <- list()
+  p <- list()
+  
+  for (i in 1:length(names(table(data$group)))) {
+    
+    data.sub <- data[data$group==names(table(data$group))[i],]
+    group[i] <- names(table(data.sub$group))
+    levels <- length(names(table(data.sub[!is.na(data.sub$y),]$x)))
+    
+    mediant[i] <- round(median(data.sub[!is.na(data.sub$x),]$y, na.rm=TRUE), 2)
+    median1[i] <- round(median(data.sub[data.sub$x==names(table(data$x))[1],]$y, na.rm=TRUE), 2)
+    median2[i] <- round(median(data.sub[data.sub$x==names(table(data$x))[2],]$y, na.rm=TRUE), 2)
+    iqrt[i] <- round(IQR(data.sub[!is.na(data.sub$x),]$y, na.rm=TRUE), 2)
+    iqr1[i] <- round(IQR(data.sub[data.sub$x==names(table(data$x))[1],]$y, na.rm=TRUE), 2)
+    iqr2[i] <- round(IQR(data.sub[data.sub$x==names(table(data$x))[2],]$y, na.rm=TRUE), 2)
+    
+    if (levels==2) {
+      
+      wtest <- wilcox.test(y~x, data.sub)
+      W[i] <- wtest$statistic
+      p[i] <- round(wtest$p.value, 3)
+      
+    } else {
+      
+      W[i] <- "NA"
+      p[i] <- "NA"
+      
+    }
+    
+  }
+  
+  output <- data.frame(Group=unlist(group),
+                       Total=paste0(unlist(mediant), " (", unlist(iqrt), ")"),
+                       Level1=paste0(unlist(median1), " (", unlist(iqr1), ")"),
+                       Level2=paste0(unlist(median2), " (", unlist(iqr2), ")"),
+                       W=unlist(W),
+                       p=unlist(p))
+  print(output)
+  
+}
